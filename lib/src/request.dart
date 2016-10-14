@@ -1,40 +1,39 @@
 part of httprequest;
 
-class HtmlBuilder {}
 
-abstract class TinyNetBuilder {
-  Future<TinyNetRequester> createRequester();
+abstract class NetBuilder {
+  Future<Requester> createRequester();
 }
 
-abstract class TinyNetRequester {
+abstract class Requester {
   static final String TYPE_POST = "POST";
   static final String TYPE_GET = "GET";
   static final String TYPE_PUT = "PUT";
   static final String TYPE_DELETE = "DELETE";
-  Future<TinyNetRequesterResponse> request(String type, String url, {Object data: null, Map<String, String> headers: null});
+  Future<Response> request(String type, String url, {Object data: null, Map<String, String> headers: null});
   Future<Object> srcToMultipartData(String src);
 }
 
-class TinyNetRequesterResponse {
+class Response {
   int _status;
   int get status => _status;
   ByteBuffer _response;
   ByteBuffer get response => (_response == null ? new Uint8List.fromList([]) : _response);
   Map<String, String> _headers = {};
   Map<String, String> get headers => _headers;
-  TinyNetRequesterResponse(this._status, Map<String, String> headers, this._response) {
+  Response(this._status, Map<String, String> headers, this._response) {
     _headers.addAll(headers);
   }
 }
 
 //
 //
-class TinyPercentEncode {
+class PercentEncode {
   static final Map<String, int> DECODE_TABLE = {"0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "a": 10, "A": 10, "b": 11, "B": 11, "c": 12, "C": 12, "d": 13, "D": 13, "e": 14, "E": 14, "f": 15, "F": 15};
 
   static final Map<int, String> ENCODE_TABLE = {0: "0", 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9", 10: "A", 11: "B", 12: "C", 13: "D", 14: "E", 15: "F"};
 
-  static TinyPercentEncode _sencoder = new TinyPercentEncode();
+  static PercentEncode _sencoder = new PercentEncode();
   static List<int> decode(String message) {
     return _sencoder.decodeWork(message);
   }

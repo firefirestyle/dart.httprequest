@@ -1,17 +1,17 @@
 part of htmlver;
 
-class TinyNetHtml5Builder extends TinyNetBuilder {
-  Future<TinyNetRequester> createRequester() async {
-    return new TinyNetHtml5HttpRequester();
+class Html5NetBuilder extends NetBuilder {
+  Future<Requester> createRequester() async {
+    return new Html5Requester();
   }
 }
 
-class TinyNetHtml5HttpRequester extends TinyNetRequester {
-  Future<TinyNetRequesterResponse> request(String type, String url, {Object data: null, Map<String, String> headers: null}) {
+class Html5Requester extends Requester {
+  Future<Response> request(String type, String url, {Object data: null, Map<String, String> headers: null}) {
     if (headers == null) {
       headers = {};
     }
-    Completer<TinyNetRequesterResponse> c = new Completer();
+    Completer<Response> c = new Completer();
     try {
       html.HttpRequest req = new html.HttpRequest();
       req.open(type, url, async: true);
@@ -22,7 +22,7 @@ class TinyNetHtml5HttpRequester extends TinyNetRequester {
 
       req.onReadyStateChange.listen((html.ProgressEvent e) {
         if (req.readyState == html.HttpRequest.DONE) {
-          c.complete(new TinyNetRequesterResponse(req.status, req.responseHeaders, req.response));
+          c.complete(new Response(req.status, req.responseHeaders, req.response));
         }
       });
       req.onError.listen((html.ProgressEvent e) {
