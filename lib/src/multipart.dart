@@ -4,34 +4,61 @@ class MultipartItem {
   String name;
   String fileName;
   String contentType;
-  String base64src;
+  typed.ByteBuffer buffer;
 
-  MultipartItem.fromBase64(this.name, this.fileName, this.contentType, this.base64src) {
-  }
+  MultipartItem.fromBase64(this.name, this.fileName, this.contentType, this.buffer) {}
 
-  String toString() {
-    StringBuffer buffer = new StringBuffer();
-    buffer.write("""Content-Disposition: form-data; name="${name}"; filename="${fileName}"\r\n""");
-    buffer.write("""Content-Type: "${contentType}"\r\n""");
-    buffer.write("""\r\n""");
-    buffer.write(base64src);
-    buffer.write("""\r\n""");
-    return buffer.toString();
+  List<List<int>> toBytesList() {
+    List<List<int>> bufferList = [];
+    bufferList.add(ASCII.encode("""Content-Disposition: form-data; name="${name}"; filename="${fileName}"\r\n"""));
+    bufferList.add(ASCII.encode("""Content-Type: ${contentType}\r\n"""));
+    bufferList.add(ASCII.encode("""\r\n"""));
+    bufferList.add(buffer.asUint8List());
+    return bufferList;
   }
 }
 
+//
+// todo. dart:html version should use formdata class or blob
+//
 class Multipart {
-  List<int> bakeMultiPartFromBinary(List<MultipartItem> items) {
-      StringBuffer buffer = new StringBuffer();
-      String boundary = "--"+Uuid.createUUID().replaceAll("-","");
-      buffer.write("""Content-Type: multipart/form-data; boundary=${boundary}\r\n""");
-      buffer.write("""\r\n""");
-      buffer.write("""${boundary}\r\n""");
-      for(var item in items) {
-        buffer.write(item.toString());
-        buffer.write("""${boundary}\r\n""");
-      }
-      buffer.write("""\r\n""");
-      return UTF8.encode(buffer.toString());
+  Future<Response> post(Requester requester, String url, List<MultipartItem> items) async {
+    String boundary = "----" + Uuid.createUUID().replaceAll("-", "");
+    return await requester.request(Requester.TYPE_POST, url, //
+        data: bakeMultiPartFromBinary(boundary, items), //
+        headers: {"Content-Type": """multipart/form-data; boundary=${boundary}"""});
   }
+
+  List<int> bakeMultiPartFromBinary(String boundary, List<MultipartItem> items) {
+    List<List<int>> buffer = [];
+    buffer.add(ASCII.encode("""--${boundary}\r\n"""));
+    for (int i = 0; i < items.length; i++) {
+      var item = items[i];
+      buffer.addAll(item.toBytesList());
+      buffer.add(ASCII.encode("""\r\n"""));
+      buffer.add(ASCII.encode("""--${boundary}${i==items.length-1?"--":""}\r\n"""));
+    }
+    buffer.add(ASCII.encode("""\r\n"""));
+
+    int length = 0;
+    for (var b in buffer) {
+      length += b.length;
+    }
+    var index = 0;
+    var byteBuffer = new typed.Uint8List(length);
+    for (var b in buffer) {
+      byteBuffer.setAll(index, b);
+      index += b.length;
+    }
+    return byteBuffer;
+  }
+/*
+  Future<Object> srcToMultipartData(String src) {
+    List<int> v1 = BASE64.decode(src);
+    html.Blob b = new html.Blob([v1], "image/png");
+    var fd = new html.FormData();
+    fd.appendBlob("file", b);
+    return fd;
+  }
+  */
 }
