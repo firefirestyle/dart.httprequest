@@ -16,6 +16,7 @@ class MultipartItem {
     buffer.write("""\r\n""");
     buffer.write(base64src);
     buffer.write("""\r\n""");
+    return buffer.toString();
   }
 }
 
