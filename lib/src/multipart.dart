@@ -6,7 +6,21 @@ class MultipartItem {
   String contentType;
   typed.ByteBuffer buffer;
 
-  MultipartItem.fromBase64(this.name, this.fileName, this.contentType, this.buffer) {}
+  // "data:image/png:base64,xxxxx..."
+  factory MultipartItem.fromBase64(String name, String fileName, String contentType, String base64Src) {
+    return new MultipartItem.fromList(name, fileName, contentType, BASE64.decode(base64Src));
+  }
+
+  MultipartItem.fromList(this.name, this.fileName, this.contentType, List<int> data) {
+    if(data is typed.Uint8List) {
+      buffer = data.buffer;
+    } else {
+      buffer = new typed.Uint8List.fromList(data).buffer;
+    }
+  }
+
+  MultipartItem.fromByteBuffer(this.name, this.fileName, this.contentType, this.buffer) {
+  }
 
   List<List<int>> toBytesList() {
     List<List<int>> bufferList = [];
