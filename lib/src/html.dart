@@ -22,7 +22,11 @@ class Html5Requester extends Requester {
 
       req.onReadyStateChange.listen((html.ProgressEvent e) {
         if (req.readyState == html.HttpRequest.DONE) {
-          c.complete(new Response(req.status, req.responseHeaders, req.response));
+          Map<String,List<String>> headerss = {};
+          for(String key in req.responseHeaders.keys) {
+            headerss[key] = [req.responseHeaders[key]];
+          }
+          c.complete(new Response(req.status, headerss, req.response));
         }
       });
       req.onError.listen((html.ProgressEvent e) {
@@ -39,11 +43,11 @@ class Html5Requester extends Requester {
     return c.future;
   }
 
-  Future<Object> srcToMultipartData(String src) {
-    List<int> v1 = conv.BASE64.decode(src);
-    html.Blob b = new html.Blob([v1], "image/png");
-    var fd = new html.FormData();
-    fd.appendBlob("file", b);
-    return fd;
-  }
+//  Future<Object> srcToMultipartData(String src) {
+//    List<int> v1 = conv.BASE64.decode(src);
+//    html.Blob b = new html.Blob([v1], "image/png");
+//    var fd = new html.FormData();
+//    fd.appendBlob("file", b);
+//    return fd;
+//  }
 }
