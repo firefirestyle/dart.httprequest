@@ -11,7 +11,7 @@ class IORequester extends Requester {
     if (headers == null) {
       headers = {};
     }
-    print("[A1]");
+    print("[A1] ${type} ${url} ${headers} ${data}");
     io.HttpClient client = new io.HttpClient(context: io.SecurityContext.defaultContext);
 
     print("[A2]");
