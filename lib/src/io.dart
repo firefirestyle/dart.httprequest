@@ -34,7 +34,7 @@ class IORequester extends Requester {
       headerss[name] = new List.from(values);
     });
 
-    print("[A6]");
+    print("[A6] ${res}");
     var ret = new Response(res.statusCode, headerss, new typed.Uint8List.fromList(await res.single).buffer);
     print("[A7]");
     return ret;
