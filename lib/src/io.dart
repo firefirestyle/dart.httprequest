@@ -35,6 +35,8 @@ class IORequester extends Requester {
     });
 
     print("[A6]");
-    return new Response(res.statusCode, headerss, new typed.Uint8List.fromList(await res.single).buffer);
+    var ret = new Response(res.statusCode, headerss, new typed.Uint8List.fromList(await res.single).buffer);
+    print("[A7]");
+    return ret;
   }
 }
